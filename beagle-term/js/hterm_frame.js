@@ -64,13 +64,15 @@ hterm.Frame.prototype.onLoad_ = function() {
   this.messageChannel_.port1.start();
   this.iframe_.contentWindow.postMessage(
       {name: 'ipc-init', argv: [{messagePort: this.messageChannel_.port2}]},
-      [this.messageChannel_.port2], this.url);
+      [this.messageChannel_.port2], '*');
 };
 
 /**
  * Clients may override this.
  */
-hterm.Frame.prototype.onLoad = function() {};
+hterm.Frame.prototype.onLoad = function() {
+
+};
 
 /**
  * Sends the terminal-info message to the iframe.
@@ -148,8 +150,9 @@ hterm.Frame.prototype.show = function() {
 
   var headerHeight = '16px';
 
+  	//can change div size
   var width = opt('width', 640);
-  var height = opt('height', 480);
+  var height = opt('height', 310);
   var left = (this.div_.clientWidth - width) / 2;
   var top = (this.div_.clientHeight - height) / 2;
 
