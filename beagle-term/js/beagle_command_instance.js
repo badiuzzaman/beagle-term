@@ -79,17 +79,6 @@ Beagle.CommandInstance.prototype.run = function() {
 
 	this.promptForDestination_();
 	
-  var self = this;
-  var port = '/dev/ttyUSB0';
-
-  serial_lib.openSerial(port, {bitrate: 115200}, function(openInfo) {
-    self.io.println('Device found ' + port + ' connection Id ' + openInfo.connectionId);
-
-    serial_lib.startListening(function(string) {
-      console.log('[onRead_] ' + string);
-      self.io.print(string);
-    });
-  });
 };
 
 /**
@@ -179,10 +168,24 @@ Beagle.CommandInstance.prototype.onConnectDialog_ = {};
  * Sent from the dialog when the user chooses a profile.
  */
 Beagle.CommandInstance.prototype.onConnectDialog_.connectToProfile = function(
-    dialogFrame, profileID) {
+    dialogFrame, portName, portBaudrate) {
   dialogFrame.close();
 
 	console.log('connectToProfile Received!!');
-  //if (!this.connectToProfile(profileID))
-//    this.promptForDestination_();
+  if (!this.connectToProfile(portName,portBaudrate))
+		this.promptForDestination_();
+};
+
+Beagle.CommandInstance.prototype.connectToProfile = function(portName,portBaudrate) { 
+	var self = this;
+  serial_lib.openSerial(portName, {bitrate: parseInt(portBaudrate)}, function(openInfo) {
+    self.io.println('Device found ' + portName + ' : ' + portBaudrate + ' connection Id ' + openInfo.connectionId);
+
+    serial_lib.startListening(function(string) {
+      console.log('[onRead_] ' + string);
+      self.io.print(string);
+    });
+  });
+
+	return true;
 };

@@ -56,10 +56,10 @@ Beagle.ConnectDialog = function() {
   this.deleteButton_ = document.querySelector('#delete');
 
   // Install various (DOM and non-DOM) event handlers.
-  this.installHandlers_(); 
+  this.installHandlers_();
 
-	// load portnames
-	this.loadPortNames_();
+	// load portnames & baudrate
+	this.loadPortNamesAndBaudrate_();
 };
 
 /**
@@ -85,7 +85,7 @@ Beagle.ConnectDialog.prototype.msg = function(name, opt_args) {
  */
 Beagle.ConnectDialog.prototype.alignLabels_ = function() {
   var labels = [
-      this.$f('identity').previousElementSibling,
+      this.$f('ports').previousElementSibling,
   ];
 
   var labelWidth = Math.max.apply(
@@ -153,15 +153,9 @@ Beagle.ConnectDialog.prototype.enableButton_ = function(button, state) {
  * Save any changes and connect if the form validates.
  */
 Beagle.ConnectDialog.prototype.connect = function(name, argv) {
-	
-	/*
-	if (this.form_.checkValidity()){
-		this.postMessage('connectToProfile', 'nike');
-	}else{
-		console.log('checkValidity failed');
-	}*/
-	this.postMessage('connectToProfile', ['nike']);	//should pass as array type
-    //this.postMessage('connectToProfile', [this.currentProfileRecord_.id]);
+	var selectedPortName = this.$f('ports').value;
+	var selectedBaudrate = this.$f('baudrate').value;
+	this.postMessage('connectToProfile', [selectedPortName,selectedBaudrate]);	//should pass as array type
 };
 
 /**
@@ -192,30 +186,6 @@ Beagle.ConnectDialog.prototype.onMessagesLoaded_ = function(mm, loaded, failed) 
   this.mm_ = mm;
   this.mm_.processI18nAttributes(document.body);
   this.alignLabels_();
-};
-
-/**
- * User initiated file import.
- *
- * This is the onChange hander for the `input type="file"`
- * (aka this.importFileInput_) control.
- */
-Beagle.ConnectDialog.prototype.onImportFiles_ = function(e) {
-  var input = this.importFileInput_;
-  var select = this.$f('identity');
-
-  var onImportSuccess = function() {
-    this.syncIdentityDropdown_(function() {
-        select.selectedIndex = select.childNodes.length - 1;
-      });
-  }.bind(this);
-
-  if (!input.files.length)
-    return;
-
-  Beagle.importFiles(this.fileSystem_, '/.ssh/', input.files, onImportSuccess);
-
-  return false;
 };
 
 /**
@@ -297,17 +267,24 @@ Beagle.ConnectDialog.prototype.onWindowMessage_ = function(e) {
 /**
  * Global window message handler, uninstalled after proper handshake.
  */
-Beagle.ConnectDialog.prototype.loadPortNames_ = function() {
+Beagle.ConnectDialog.prototype.loadPortNamesAndBaudrate_ = function() {
   var portSelect = this.$f('ports');
+  var baudrateSelect = this.$f('baudrate');
 
-	function clearSelect() {
+	function clearPortSelect() {
 		while (portSelect.firstChild) {
 			portSelect.removeChild(portSelect.firstChild);
 		}
-	}     
+	}
 	
+	function clearBaudrateSelect() {
+		while (baudrateSelect.firstChild) {
+			baudrateSelect.removeChild(baudrateSelect.firstChild);
+		}
+	}
+
 	var onCallbackGetPorts = function(ports){
-		clearSelect();
+		clearPortSelect();
 		var eligiblePorts = ports.filter(function(port) {
 			return !port.match(/[Bb]luetooth/);
 		});
@@ -319,41 +296,50 @@ Beagle.ConnectDialog.prototype.loadPortNames_ = function() {
 	    portSelect.appendChild(portOption);
 		});
 
+		clearBaudrateSelect();
+
+		var aryBaudrate = ["2400","4800","9600","19200","38400","57600","115200"];
+		for(var baudrate in aryBaudrate){
+		  var baudrateOption = document.createElement('option');
+		  baudrateOption.value = baudrateOption.innerText = aryBaudrate[baudrate];
+	    baudrateSelect.appendChild(baudrateOption);
+		}
 	}.bind(this);
 
 	serial_lib.getPorts(onCallbackGetPorts);
 }
+
 /*
  var onReadError = function() {                                                                                                                                 |  %anonymous_function : void function(an
-		 530     clearSelect();                                                                                                                                               |  
+		 530     clearSelect();                                                                                                                                               |
 		 531     var option = document.createElement('option');                                                                                                               |  %anonymous_function : void function(an
-			 532     option.textContent = 'Error!';                                                                                                                               |  
+			 532     option.textContent = 'Error!';                                                                                                                               |
 			 533     identitySelect.appendChild(option);                                                                                                                          |  %anonymous_function : void function(an
-				 534   }.bind(this);                                                                                                                                                  |  
+				 534   }.bind(this);                                                                                                                                                  |
 				 535                                                                                                                                                                  |  %anonymous_function : void function()
-				 536   var onReadSuccess = function(entries) {                                                                                                                        |  
+				 536   var onReadSuccess = function(entries) {                                                                                                                        |
 				 537     for (var key in entries) {                                                                                                                                   |  %anonymous_function : void function(an
-					 538       var ary = key.match(/^(.*)\.pub/);                                                                                                                         |  
+					 538       var ary = key.match(/^(.*)\.pub/);                                                                                                                         |
 					 539       if (ary && ary[1] in entries)                                                                                                                              |  %anonymous_function : void function(an
-						 540         keyfileNames.push(ary[1]);                                                                                                                               |  
+						 540         keyfileNames.push(ary[1]);                                                                                                                               |
 						 541     }                                                                                                                                                            |  %anonymous_function : void function()
-						 542                                                                                                                                                                  |  
+						 542                                                                                                                                                                  |
 						 543     clearSelect();                                                                                                                                               |  %anonymous_function : void function(an
-							 544                                                                                                                                                                  |  
+							 544                                                                                                                                                                  |
 							 545     var option = document.createElement('option');                                                                                                               |  %anonymous_function : void function()
-							 546     option.textContent = '[default]';                                                                                                                            |  
+							 546     option.textContent = '[default]';                                                                                                                            |
 							 547     identitySelect.appendChild(option);                                                                                                                          |  %anonymous_function : void function()
-							 548                                                                                                                                                                  |  
+							 548                                                                                                                                                                  |
 							 549     for (var i = 0; i < keyfileNames.length; i++) {                                                                                                              |  %anonymous_function : void function()
-							 550       var option = document.createElement('option');                                                                                                             |  
+							 550       var option = document.createElement('option');                                                                                                             |
 							 551       option.textContent = keyfileNames[i];                                                                                                                      |  %anonymous_function : void function(an
-								 552       identitySelect.appendChild(option);                                                                                                                        |  
+								 552       identitySelect.appendChild(option);                                                                                                                        |
 								 553       if (keyfileNames[i] == selectedName)                                                                                                                       |  ConnectDialog : void function()
-								 554         identitySelect.selectedIndex = i;                                                                                                                        |  
+								 554         identitySelect.selectedIndex = i;                                                                                                                        |
 								 555     }                                                                                                                                                            |  ProfileRecord : void function(any, any
-									 556                                                                                                                                                                  |  
+									 556                                                                                                                                                                  |
 									 557     if (opt_onSuccess)                                                                                                                                           |  addListeners : void function(any, Arra
-										 558       opt_onSuccess();                                                                                                                                           |  
+										 558       opt_onSuccess();                                                                                                                                           |
 										 559                                                                                                                                                                  |  alignLabels_ : void function()
-										 560   }.bind(this);                                      
+										 560   }.bind(this);
 										 */
