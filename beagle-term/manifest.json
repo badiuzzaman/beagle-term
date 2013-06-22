@@ -1,14 +1,14 @@
 {
   "minimum_chrome_version": "25",
   "manifest_version": 2,
-  "name": "Beagle Term",
-  "version": "1.2.1",
+  "name": "Beagle Term for ChromeOS",
+  "version": "1.2.2",
   "default_locale": "en",
   "icons": {
-    "128": "images/beagleterm-128.png",
-    "48": "images/beagleterm-48.png",
-    "32": "images/beagleterm-32.png",
-    "16": "images/beagleterm-16.png"
+    "128": "images/beagleterm-chrome-128.png",
+    "48": "images/beagleterm-chrome-48.png",
+    "32": "images/beagleterm-chrome-32.png",
+    "16": "images/beagleterm-chrome-16.png"
   },
   "description": "Beagle Term is serial terminal emulator based on Google Chrome.",
   "offline_enabled": true,
