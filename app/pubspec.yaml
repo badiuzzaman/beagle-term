@@ -4,4 +4,4 @@ description: Serial Terminal for Chrome.
 author: Sungguk Lim <limasdf@gmail.com>
 homepage: https://github.com/beagleterm/beagle-term
 dependencies:
-  grinder: any
+  browser: any
