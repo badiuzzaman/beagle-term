@@ -1,5 +1,5 @@
 // TODO: Add license.
-import 'dart:js'
+import 'dart:js';
 
 void main() {
   Beagle beagle = new Beagle();
